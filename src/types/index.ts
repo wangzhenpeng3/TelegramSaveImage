@@ -8,5 +8,5 @@ export enum ParseHtmlTag {
 }
 
 export enum DownloadPath {
-    image = './dist/images'
+    image = '/download'
 }
