@@ -1,9 +1,6 @@
 import Koa from "koa"
 import routers from "./routers"
-import path from "path"
-import fs from "fs"
-import dotenv from "dotenv"
-
+import cors from "@koa/cors"
 export const app = new Koa()
 
 // const env = process.env.NODE_ENV
@@ -18,11 +15,21 @@ export const app = new Koa()
 // } else {
 //     process.exit(1)
 // }
+app.use(cors());
 
+app.use(cors({
+    origin: '*', // 允许来自所有域名的请求
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // 设置所允许的HTTP请求方法
+    allowHeaders: ['Content-Type', 'Authorization', 'Accept'], // 设置服务器支持的所有头信息字段
+    exposeHeaders: ['WWW-Authenticate', 'Server-Authorization'], // 设置获取其他自定义字段
+    maxAge: 5, // 该字段可选，用来指定本次预检请求的有效期，单位为秒
+    credentials: true, // 是否允许发送Cookie
+    keepHeadersOnError: true // 出现错误时是否添加头信息
+}));
 app.use(routers())
 
 const port = 9999
-app.listen(port,()=>{
+app.listen(port, () => {
     console.log(`server is running on ${port}`)
 })
 // import { NestFactory } from '@nestjs/core';
