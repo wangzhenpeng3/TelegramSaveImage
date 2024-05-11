@@ -46,7 +46,7 @@ export const downloadImageHandler = async (ctx: Context, next: () => Promise<any
     return
   }
   const _folderName = folderName as string || match[1]
-  const _path = `${__dirname}/${_folderName}`
+  const _path = `${DownloadPath.image}/${_folderName}`
   const Files = new FilesService(_path);
   const isExist = await Files.hasFolder()
   if (isExist) {
