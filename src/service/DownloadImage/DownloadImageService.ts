@@ -1,6 +1,7 @@
 import axios from "axios";
 import FilesService from "../Files";
 import { Status } from "src/types";
+
 // 图片服务
 class DownloadImageService {
     private downloadPath = '';

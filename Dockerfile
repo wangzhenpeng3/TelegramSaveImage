@@ -31,7 +31,7 @@ COPY package*.json ./
 
 RUN npm install --only=production
 
-VOLUME [ "/download" ]
+VOLUME [ "/download", "/config"]
 
 # If you are building your code for production
 # RUN npm ci --only=production

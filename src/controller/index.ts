@@ -5,11 +5,12 @@ import DownloadImageService from "src/service/DownloadImage/DownloadImageService
 import ParseHtmlService from "src/service/DownloadImage/ParseHtmlService";
 import { DownloadPath, Status } from "src/types";
 import FilesService from "src/service/Files";
+import { WinstonLogger } from "src/service/Log";
 const { PassThrough } = require("stream");
 
 // 进度事件发射器
 // const downloadProgressEmitter = new EventEmitter();
-
+const logger = new WinstonLogger()
 export const downloadImageHandler = async (ctx: Context, next: () => Promise<any>) => {
   const { url, folderName, id } = ctx.query;
   if (!url) {
@@ -48,26 +49,28 @@ export const downloadImageHandler = async (ctx: Context, next: () => Promise<any
   const _folderName = folderName as string || match[1]
   const _path = `${DownloadPath.image}/${_folderName}`
   const Files = new FilesService(_path);
+  const sendWrite = (data = '') => {
+    logger.log(data)
+    stream.write(data)
+  }
   const isExist = await Files.hasFolder()
   if (isExist) {
-    ctx.body = stream
-    stream.write(`data: ${JSON.stringify({ currentProgress: 0, totalProgress: 0, status: Status.error, id, name: _folderName, msg: '该文件夹已存在' })}\n\n`);
-    return;
+    sendWrite(`data: ${JSON.stringify({ currentProgress: 0, totalProgress: 0, status: Status.error, id, name: _folderName, msg: '该文件夹已存在' })}\n\n`);
   }
   // 解析html中img src
   const ParseHtml = new ParseHtmlService(url as string)
   const { code, data, msg } = await ParseHtml.getImageBySrcArr()
   if (code !== Status.success) {
-    stream.write(`data: ${JSON.stringify({ currentProgress: 0, totalProgress: 0, status: Status.error, id, name: _folderName, msg: 'html解析失败' })}\n\n`);
+    sendWrite(`data: ${JSON.stringify({ currentProgress: 0, totalProgress: 0, status: Status.error, id, name: _folderName, msg: 'html解析失败' })}\n\n`);
     return
   }
   let ImaeService = new DownloadImageService()
   ImaeService.setDownloadPath(_path)
   const result: any = await ImaeService.downloadImage({
     imageArr: data, on: (progress: any) => {
-      stream.write(`data: ${JSON.stringify({ ...progress, id, name: _folderName })}\n\n`);
+      sendWrite(`data: ${JSON.stringify({ ...progress, id, name: _folderName })}\n\n`);
     }, error: (progress: any) => {
-      stream.write(`data: ${JSON.stringify({ ...progress, id, name: _folderName })}\n\n`);
+      sendWrite(`data: ${JSON.stringify({ ...progress, id, name: _folderName })}\n\n`);
     }
   })
   ImaeService = null;

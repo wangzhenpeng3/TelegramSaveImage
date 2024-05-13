@@ -1,6 +1,7 @@
 import Koa from "koa"
 import routers from "./routers"
 import cors from "@koa/cors"
+import { WinstonLogger } from "./service/Log";
 export const app = new Koa()
 
 // const env = process.env.NODE_ENV
@@ -16,7 +17,6 @@ export const app = new Koa()
 //     process.exit(1)
 // }
 app.use(cors());
-
 app.use(cors({
     origin: '*', // 允许来自所有域名的请求
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // 设置所允许的HTTP请求方法
@@ -26,7 +26,17 @@ app.use(cors({
     credentials: true, // 是否允许发送Cookie
     keepHeadersOnError: true // 出现错误时是否添加头信息
 }));
+
 app.use(routers())
+
+// 日志中间件
+app.use(async (ctx, next) => {
+    const start = Date.now();
+    await next();
+    const logger = new WinstonLogger()
+    const ms = Date.now() - start;
+    logger.log(`${ctx.method} ${ctx.url} - ${ms}ms`);
+});
 
 const port = 9999
 app.listen(port, () => {

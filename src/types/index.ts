@@ -1,3 +1,5 @@
+import path from "path";
+
 export enum Status {
     success = 'success',
     progress = 'progress',
@@ -7,9 +9,10 @@ export enum Status {
 export enum ParseHtmlTag {
     image = 'img'
 }
-
 export enum DownloadPath {
-    image = '/download'
+    image = '/download',
+    config = `/config`,
+    logs = '/logs'
 }
 
 export enum HTTPCode {
